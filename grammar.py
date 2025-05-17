@@ -10,7 +10,7 @@ def peek():
     return None
 
 
-def term(tok):
+def has_term(tok):
     global next_pos
     if peek() == tok:
         next_pos += 1
@@ -35,7 +35,7 @@ def flist():
     global next_pos
     save = next_pos
     return (
-            (next_pos := save, flist1())[1] or
+            flist1() or
             (next_pos := save, flist2())[1]
     )
 
@@ -49,42 +49,42 @@ def flist2():
 
 
 def fdef():
-    return term(DEF) and term(ID) and term(OPEN) and parlist() and term(CLOSE) and term(LBRACE) and stmtlist() and term(RBRACE)
+    return has_term(DEF) and has_term(ID) and has_term(OPEN) and parlist() and has_term(CLOSE) and has_term(LBRACE) and stmtlist() and has_term(RBRACE)
 
 
 def parlist():
     global next_pos
     save = next_pos
     return (
-            (next_pos := save, parlist1())[1] or
+            parlist1() or
             (next_pos := save, parlist2())[1] or
             True  # epsilon
     )
 
 
 def parlist1():
-    return term(INT) and term(ID) and term(COMMA) and parlist()
+    return has_term(INT) and has_term(ID) and has_term(COMMA) and parlist()
 
 
 def parlist2():
-    return term(INT) and term(ID)
+    return has_term(INT) and has_term(ID)
 
 
 def varlist():
     global next_pos
     save = next_pos
     return (
-            (next_pos := save, varlist1())[1] or
+            varlist1() or
             (next_pos := save, varlist2())[1]
     )
 
 
 def varlist1():
-    return term(ID) and term(COMMA) and varlist()
+    return has_term(ID) and has_term(COMMA) and varlist()
 
 
 def varlist2():
-    return term(ID)
+    return has_term(ID)
 
 
 def stmt():
@@ -92,7 +92,7 @@ def stmt():
     save = next_pos
 
     return (
-            (next_pos := save, stmt1())[1] or
+            stmt1() or
             (next_pos := save, stmt2())[1] or
             (next_pos := save, stmt3())[1] or
             (next_pos := save, stmt4())[1] or
@@ -103,19 +103,19 @@ def stmt():
 
 
 def stmt1():
-    return term(INT) and varlist() and term(SEMICOLON)
+    return has_term(INT) and varlist() and has_term(SEMICOLON)
 
 
 def stmt2():
-    return atribst() and term(SEMICOLON)
+    return atribst() and has_term(SEMICOLON)
 
 
 def stmt3():
-    return printst() and term(SEMICOLON)
+    return printst() and has_term(SEMICOLON)
 
 
 def stmt4():
-    return returnst() and term(SEMICOLON)
+    return returnst() and has_term(SEMICOLON)
 
 
 def stmt5():
@@ -123,95 +123,96 @@ def stmt5():
 
 
 def stmt6():
-    return term(LBRACE) and stmtlist() and term(RBRACE)
+    return has_term(LBRACE) and stmtlist() and has_term(RBRACE)
 
 
 def stmt7():
-    return term(SEMICOLON)
+    return has_term(SEMICOLON)
 
 
 def atribst():
     global next_pos
     save = next_pos
     return (
-            (next_pos := save, atribst1())[1] or
+            atribst1() or
             (next_pos := save, atribst2())[1]
     )
 
 
 def atribst1():
-    return term(ID) and term(ASSIGN) and expr()
+    return has_term(ID) and has_term(ASSIGN) and expr()
 
 
 def atribst2():
-    return term(ID) and term(ASSIGN) and fcall()
+    return has_term(ID) and has_term(ASSIGN) and fcall()
 
 
 def fcall():
-    return term(ID) and term(OPEN) and parlistcall() and term(CLOSE)
+    return has_term(ID) and has_term(OPEN) and parlistcall() and has_term(CLOSE)
 
 
 def parlistcall():
     global next_pos
     save = next_pos
     return (
-            (next_pos := save, parlistcall1())[1] or
+            parlistcall1() or
             (next_pos := save, parlistcall2())[1] or
             True  # epsilon
     )
 
 
 def parlistcall1():
-    return term(ID) and term(COMMA) and parlistcall()
+    return has_term(ID) and has_term(COMMA) and parlistcall()
 
 
 def parlistcall2():
-    return term(ID)
+    return has_term(ID)
 
 
 def printst():
-    return term(PRINT) and expr()
+    return has_term(PRINT) and expr()
 
 
 def returnst():
     global next_pos
     save = next_pos
     return (
-            (next_pos := save, returnst1())[1] or
+            returnst1() or
             (next_pos := save, returnst2())[1]
     )
 
 
 def returnst1():
-    return term(RETURN) and term(ID)
+    return has_term(RETURN) and has_term(ID)
 
 
 def returnst2():
-    return term(RETURN)
+    return has_term(RETURN)
 
 
 def ifstmt():
     global next_pos
     save = next_pos
     return (
-            (next_pos := save, ifstmt1())[1] or
+            ifstmt1() or
             (next_pos := save, ifstmt2())[1]
     )
 
 
 def ifstmt1():
-    return term(IF) and term(OPEN) and expr() and term(CLOSE) and term(LBRACE) and stmt() and term(RBRACE) and term(ELSE) and term(LBRACE) and stmt() and term(RBRACE)
+    return has_term(IF) and has_term(OPEN) and expr() and has_term(CLOSE) and has_term(LBRACE) and stmt() and has_term(RBRACE) and has_term(ELSE) and has_term(
+        LBRACE) and stmt() and has_term(RBRACE)
 
 
 def ifstmt2():
-    return term(IF) and term(OPEN) and expr() and term(CLOSE) and term(LBRACE) and stmt() and term(RBRACE)
+    return has_term(IF) and has_term(OPEN) and expr() and has_term(CLOSE) and has_term(LBRACE) and stmt() and has_term(RBRACE)
 
 
 def stmtlist():
     global next_pos
     save = next_pos
     return (
-            (next_pos := save, stmtlist1())[1] or
+            stmtlist1() or
             (next_pos := save, stmtlist2())[1]
     )
 
@@ -228,7 +229,7 @@ def expr():
     global next_pos
     save = next_pos
     return (
-            (next_pos := save, expr1())[1] or
+            expr1() or
             (next_pos := save, expr2())[1] or
             (next_pos := save, expr3())[1] or
             (next_pos := save, expr4())[1] or
@@ -239,56 +240,80 @@ def expr():
 
 
 def expr1():
-    return numexpr() and term(LT) and numexpr()
+    return numexpr() and has_term(LT) and numexpr()
 
 
 def expr2():
-    return numexpr() and term(LTE) and numexpr()
+    return numexpr() and has_term(LTE) and numexpr()
 
 
 def expr3():
-    return numexpr() and term(GT) and numexpr()
+    return numexpr() and has_term(GT) and numexpr()
 
 
 def expr4():
-    return numexpr() and term(GTE) and numexpr()
+    return numexpr() and has_term(GTE) and numexpr()
 
 
 def expr5():
-    return numexpr() and term(EQ) and numexpr()
+    return numexpr() and has_term(EQ) and numexpr()
 
 
 def expr6():
-    return numexpr() and term(NEQ) and numexpr()
+    return numexpr() and has_term(NEQ) and numexpr()
 
 
 def numexpr():
+    return has_term(term) and numexpr_()
+
+
+def numexpr_():
     global next_pos
     save = next_pos
     return (
-            (next_pos := save, numexpr())[1] and term(PLUS) and term_() or
-            (next_pos := save, numexpr())[1] and term(MINUS) and term_() or
-            (next_pos := save, term_())[1]
+            numexpr_1() or
+            (next_pos := save, numexpr_2())[1] or
+            True  # epsilon
     )
+
+
+def numexpr_1():
+    return has_term(PLUS) and has_term(term) and numexpr_()
+
+
+def numexpr_2():
+    return has_term(MINUS) and has_term(term) and numexpr_()
+
+
+def term():
+    return factor() and term_()
 
 
 def term_():
     global next_pos
     save = next_pos
     return (
-            (next_pos := save, term_())[1] and term(TIMES) and factor() or
-            (next_pos := save, term_())[1] and term(DIV) and factor() or
-            (next_pos := save, factor())[1]
+            term_1() or
+            (next_pos := save, term_2())[1] or
+            True  # epsilon
     )
+
+
+def term_1():
+    return has_term(TIMES) and factor() and term_()
+
+
+def term_2():
+    return has_term(DIV) and factor() and term_()
 
 
 def factor():
     global next_pos
     save = next_pos
     return (
-            (next_pos := save, term(NUM))[1] or
-            (next_pos := save, term(OPEN) and numexpr() and term(CLOSE))[1] or
-            (next_pos := save, term(ID))[1]
+            has_term(NUM) or
+            (next_pos := save, has_term(OPEN) and numexpr() and has_term(CLOSE))[1] or
+            (next_pos := save, has_term(ID))[1]
     )
 
 
